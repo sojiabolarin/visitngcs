@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_form" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.vn.care</field>
+        <field name="model">res.config.settings</field>
+        <field name="priority" eval="20"/>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <app data-string="Customer Care" string="Customer Care" name="vn_care">
+                    <block title="Enquiries">
+                        <setting help="Email the customer a confirmation with the reference number when an enquiry arrives">
+                            <field name="vn_care_send_acknowledgement"/>
+                        </setting>
+                        <setting help="Managers receive a notification for each new unassigned enquiry">
+                            <field name="vn_care_notify_managers"/>
+                        </setting>
+                        <setting help="Agents see the unassigned enquiries and can assign one to themselves">
+                            <field name="group_vn_care_pickup"/>
+                        </setting>
+                        <setting help="Days without a customer reply before a resolved enquiry is closed (0 to never close)">
+                            <field name="vn_care_auto_close_days"/>
+                        </setting>
+                    </block>
+                    <block title="Website Integration">
+                        <setting help="Address on VisitNigeria.io that receives each change of status, agent or outcome">
+                            <field name="vn_care_webhook_url" placeholder="https://visitnigeria.io/api/care/webhook"/>
+                        </setting>
+                        <setting help="Signs the webhook calls and authenticates the reconciliation call">
+                            <field name="vn_care_webhook_secret" password="True"/>
+                        </setting>
+                        <setting help="Address on VisitNigeria.io that lists the enquiries submitted since a date, read every night">
+                            <field name="vn_care_reconcile_url" placeholder="https://visitnigeria.io/api/care/enquiries"/>
+                        </setting>
+                    </block>
+                </app>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="res_config_settings_action" model="ir.actions.act_window">
+        <field name="name">Settings</field>
+        <field name="res_model">res.config.settings</field>
+        <field name="view_mode">form</field>
+        <field name="context">{'module': 'vn_care'}</field>
+    </record>
+</odoo>

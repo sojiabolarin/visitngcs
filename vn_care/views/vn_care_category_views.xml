@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="vn_care_category_view_list" model="ir.ui.view">
+        <field name="name">vn.care.category.view.list</field>
+        <field name="model">vn.care.category</field>
+        <field name="arch" type="xml">
+            <list string="Service Categories" editable="bottom" decoration-warning="needs_review">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="code"/>
+                <field name="enquiry_count"/>
+                <field name="needs_review"/>
+                <field name="active" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="vn_care_category_view_search" model="ir.ui.view">
+        <field name="name">vn.care.category.view.search</field>
+        <field name="model">vn.care.category</field>
+        <field name="arch" type="xml">
+            <search string="Search Categories">
+                <field name="name" filter_domain="['|', ('name', 'ilike', self), ('code', 'ilike', self)]"/>
+                <filter name="needs_review" string="To Review" domain="[('needs_review', '=', True)]"/>
+                <filter name="inactive" string="Archived" domain="[('active', '=', False)]"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="vn_care_category_action" model="ir.actions.act_window">
+        <field name="name">Service Categories</field>
+        <field name="res_model">vn.care.category</field>
+        <field name="path">care-categories</field>
+        <field name="view_mode">list</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Add a service category</p>
+            <p>A category the website sends for the first time is created here automatically and flagged for review.</p>
+        </field>
+    </record>
+</odoo>

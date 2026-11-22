@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="config_send_acknowledgement" model="ir.config_parameter">
+        <field name="key">vn_care.send_acknowledgement</field>
+        <field name="value">True</field>
+    </record>
+    <record id="config_notify_managers" model="ir.config_parameter">
+        <field name="key">vn_care.notify_managers</field>
+        <field name="value">True</field>
+    </record>
+    <record id="config_auto_close_days" model="ir.config_parameter">
+        <field name="key">vn_care.auto_close_days</field>
+        <field name="value">7</field>
+    </record>
+</odoo>

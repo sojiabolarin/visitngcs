@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="vn_care.Dashboard">
+        <div class="o_action o_vn_care_dashboard h-100 overflow-auto bg-100">
+            <div class="container-fluid py-3 px-3 px-md-4">
+                <div class="d-flex flex-wrap align-items-baseline justify-content-between mb-3">
+                    <h2 class="mb-1">Customer Care Overview</h2>
+                    <span class="text-muted">
+                        <t t-if="this.state.data.is_manager">All enquiries of the team</t>
+                        <t t-else="">Your enquiries</t>
+                    </span>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-6 col-lg-3">
+                        <button type="button" class="o_vn_care_tile o_vn_care_tile_main card w-100 h-100 text-start p-3"
+                            t-on-click="() => this.openTotal()">
+                            <span class="o_vn_care_tile_label text-muted">Total enquiries received</span>
+                            <span class="o_vn_care_tile_value" t-out="this.state.data.total"/>
+                        </button>
+                    </div>
+                    <div class="col-6 col-lg-3">
+                        <button type="button" class="o_vn_care_tile o_vn_care_tile_main card w-100 h-100 text-start p-3"
+                            t-on-click="() => this.openOutstanding()">
+                            <span class="o_vn_care_tile_label text-muted">Outstanding</span>
+                            <span class="o_vn_care_tile_value" t-out="this.state.data.outstanding"/>
+                        </button>
+                    </div>
+                    <div class="col-6 col-lg-3">
+                        <button type="button" class="o_vn_care_tile card w-100 h-100 text-start p-3"
+                            t-att-class="{ 'o_vn_care_tile_alert': this.state.data.unassigned }"
+                            t-on-click="() => this.openUnassigned()">
+                            <span class="o_vn_care_tile_label text-muted">Waiting to be assigned</span>
+                            <span class="o_vn_care_tile_value" t-out="this.state.data.unassigned"/>
+                        </button>
+                    </div>
+                    <div class="col-6 col-lg-3">
+                        <button type="button" class="o_vn_care_tile card w-100 h-100 text-start p-3"
+                            t-att-class="{ 'o_vn_care_tile_alert': this.state.data.overdue }"
+                            t-on-click="() => this.openOverdue()">
+                            <span class="o_vn_care_tile_label text-muted">Overdue follow-ups</span>
+                            <span class="o_vn_care_tile_value" t-out="this.state.data.overdue"/>
+                        </button>
+                    </div>
+                </div>
+
+                <h5 class="mt-4 mb-2">By status</h5>
+                <div class="row g-3 mb-3">
+                    <div class="col-6 col-md-4 col-xl-2" t-foreach="this.handlingStates()" t-as="status" t-key="status.key">
+                        <button type="button" class="o_vn_care_tile card w-100 h-100 text-start p-3"
+                            t-att-data-state="status.key" t-on-click="() => this.openState(status)">
+                            <span class="o_vn_care_tile_label text-muted" t-out="status.label"/>
+                            <span class="o_vn_care_tile_value" t-out="status.count"/>
+                        </button>
+                    </div>
+                    <div class="col-6 col-md-4 col-xl-2">
+                        <button type="button" class="o_vn_care_tile card w-100 h-100 text-start p-3"
+                            data-state="done" t-on-click="() => this.openDone()">
+                            <span class="o_vn_care_tile_label text-muted">Resolved and closed</span>
+                            <span class="o_vn_care_tile_value" t-out="this.doneCount()"/>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="row g-3 mt-2">
+                    <div t-att-class="this.state.data.is_manager ? 'col-12 col-lg-7' : 'col-12'">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title mb-3">Requests by service category</h5>
+                                <p t-if="!this.state.data.categories.length" class="text-muted mb-0">
+                                    No enquiry yet. Requests submitted on the website appear here automatically.
+                                </p>
+                                <button type="button" class="o_vn_care_category btn btn-link text-reset text-decoration-none w-100 text-start px-0 py-1"
+                                    t-foreach="this.state.data.categories" t-as="category" t-key="category.id"
+                                    t-on-click="() => this.openCategory(category)">
+                                    <span class="d-flex justify-content-between">
+                                        <span t-out="category.name"/>
+                                        <span>
+                                            <strong t-out="category.total"/>
+                                            <span class="text-muted small ms-1">(<t t-out="category.open"/> outstanding)</span>
+                                        </span>
+                                    </span>
+                                    <span class="o_vn_care_bar d-block mt-1">
+                                        <span class="o_vn_care_bar_fill d-block" t-attf-style="width: {{ this.barWidth(category.total) }}%"/>
+                                    </span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-lg-5" t-if="this.state.data.is_manager">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title mb-3">Outstanding by agent</h5>
+                                <p t-if="!this.state.data.agents.length" class="text-muted mb-0">
+                                    No enquiry is assigned at the moment.
+                                </p>
+                                <button type="button" class="o_vn_care_agent btn btn-link text-reset text-decoration-none w-100 d-flex justify-content-between px-0 py-1 border-bottom"
+                                    t-foreach="this.state.data.agents" t-as="agent" t-key="agent.id"
+                                    t-on-click="() => this.openAgent(agent)">
+                                    <span t-out="agent.name"/>
+                                    <strong t-out="agent.open"/>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </t>
+
+</templates>

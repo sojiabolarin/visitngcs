@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="vn_care_category_holiday_packages" model="vn.care.category">
+        <field name="name">Holiday and Travel Packages</field>
+        <field name="code">holiday_packages</field>
+        <field name="sequence">10</field>
+        <field name="color">1</field>
+    </record>
+    <record id="vn_care_category_flights" model="vn.care.category">
+        <field name="name">Flight Bookings</field>
+        <field name="code">flights</field>
+        <field name="sequence">20</field>
+        <field name="color">2</field>
+    </record>
+    <record id="vn_care_category_hotels" model="vn.care.category">
+        <field name="name">Hotel Reservations</field>
+        <field name="code">hotels</field>
+        <field name="sequence">30</field>
+        <field name="color">3</field>
+    </record>
+    <record id="vn_care_category_visa" model="vn.care.category">
+        <field name="name">Visa Assistance</field>
+        <field name="code">visa</field>
+        <field name="sequence">40</field>
+        <field name="color">4</field>
+    </record>
+    <record id="vn_care_category_transfers" model="vn.care.category">
+        <field name="name">Airport Transfers and Transportation</field>
+        <field name="code">transfers</field>
+        <field name="sequence">50</field>
+        <field name="color">5</field>
+    </record>
+    <record id="vn_care_category_esim" model="vn.care.category">
+        <field name="name">eSIM and Connectivity</field>
+        <field name="code">esim</field>
+        <field name="sequence">60</field>
+        <field name="color">6</field>
+    </record>
+    <record id="vn_care_category_insurance" model="vn.care.category">
+        <field name="name">Travel Insurance</field>
+        <field name="code">insurance</field>
+        <field name="sequence">70</field>
+        <field name="color">7</field>
+    </record>
+    <record id="vn_care_category_concierge" model="vn.care.category">
+        <field name="name">Concierge and Travel Assistance</field>
+        <field name="code">concierge</field>
+        <field name="sequence">80</field>
+        <field name="color">8</field>
+    </record>
+    <record id="vn_care_category_events" model="vn.care.category">
+        <field name="name">Events, Experiences and Activities</field>
+        <field name="code">events</field>
+        <field name="sequence">90</field>
+        <field name="color">9</field>
+    </record>
+</odoo>

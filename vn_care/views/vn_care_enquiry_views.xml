@@ -1,0 +1,369 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="vn_care_enquiry_view_search" model="ir.ui.view">
+        <field name="name">vn.care.enquiry.view.search</field>
+        <field name="model">vn.care.enquiry</field>
+        <field name="arch" type="xml">
+            <search string="Search Enquiries">
+                <field name="name" string="Enquiry"
+                    filter_domain="['|', '|', '|', ('name', 'ilike', self), ('customer_name', 'ilike', self), ('email', 'ilike', self), ('phone', 'ilike', self)]"/>
+                <field name="customer_name"/>
+                <field name="email"/>
+                <field name="name" string="Reference Number"/>
+                <field name="category_id"/>
+                <field name="user_id"/>
+                <field name="phone"/>
+                <field name="submission_id"/>
+                <field name="service_partner_id"/>
+                <filter name="my_enquiries" string="My Enquiries" domain="[('user_id', '=', uid)]"/>
+                <filter name="unassigned" string="Unassigned" domain="[('user_id', '=', False)]"/>
+                <separator/>
+                <filter name="outstanding" string="Outstanding" domain="[('is_open', '=', True)]"/>
+                <separator/>
+                <filter name="state_new" string="New" domain="[('state', '=', 'new')]"/>
+                <filter name="state_assigned" string="Assigned" domain="[('state', '=', 'assigned')]"/>
+                <filter name="state_in_progress" string="In Progress" domain="[('state', '=', 'in_progress')]"/>
+                <filter name="state_awaiting_customer" string="Awaiting Customer" domain="[('state', '=', 'awaiting_customer')]"/>
+                <filter name="state_awaiting_partner" string="Awaiting Partner" domain="[('state', '=', 'awaiting_partner')]"/>
+                <filter name="state_resolved" string="Resolved" domain="[('state', '=', 'resolved')]"/>
+                <filter name="state_closed" string="Closed" domain="[('state', '=', 'closed')]"/>
+                <separator/>
+                <filter name="converted" string="Converted to Booking" domain="[('outcome', '=', 'converted')]"/>
+                <filter name="not_converted" string="Not Converted" domain="[('outcome', '=', 'not_converted')]"/>
+                <separator/>
+                <filter name="date_received" string="Date Received" date="date_received"/>
+                <filter name="travel_date" string="Travel Date" date="travel_date"/>
+                <separator/>
+                <filter name="sync_failed" string="Website Sync Failed" domain="[('sync_state', '=', 'failed')]"/>
+                <separator/>
+                <filter name="activities_overdue" string="Overdue Follow-ups"
+                    domain="[('is_open', '=', True), ('activity_date_deadline', '&lt;', 'today')]"/>
+                <filter name="activities_today" string="Follow-ups Due Today"
+                    domain="[('activity_date_deadline', '=', 'today')]"/>
+                <filter name="message_needaction" string="Unread Messages"
+                    domain="[('message_needaction', '=', True)]"/>
+                <group>
+                    <filter name="group_state" string="Status" context="{'group_by': 'state'}"/>
+                    <filter name="group_category" string="Service Category" context="{'group_by': 'category_id'}"/>
+                    <filter name="group_user" string="Assigned Agent" context="{'group_by': 'user_id'}"/>
+                    <filter name="group_outcome" string="Outcome" context="{'group_by': 'outcome'}"/>
+                    <filter name="group_service_partner" string="Service Partner" context="{'group_by': 'service_partner_id'}"/>
+                    <filter name="group_date_received" string="Date Received" context="{'group_by': 'date_received:month'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="vn_care_enquiry_view_list" model="ir.ui.view">
+        <field name="name">vn.care.enquiry.view.list</field>
+        <field name="model">vn.care.enquiry</field>
+        <field name="arch" type="xml">
+            <list string="Enquiries" js_class="vn_care_enquiry_list" create="0" multi_edit="1" sample="1"
+                decoration-bf="state == 'new'" decoration-muted="state == 'closed'">
+                <field name="name" readonly="1"/>
+                <field name="date_received" readonly="1"/>
+                <field name="customer_name" readonly="1"/>
+                <field name="email" readonly="1" optional="show"/>
+                <field name="phone" readonly="1" optional="hide"/>
+                <field name="category_id" readonly="1"/>
+                <field name="travel_date" readonly="1" optional="show"/>
+                <field name="user_id" widget="many2one_avatar_user" groups="vn_care.vn_care_group_manager"/>
+                <field name="user_id" widget="many2one_avatar_user" readonly="1" groups="!vn_care.vn_care_group_manager"/>
+                <field name="state" widget="badge"
+                    decoration-info="state in ('new', 'assigned')"
+                    decoration-primary="state == 'in_progress'"
+                    decoration-warning="state in ('awaiting_customer', 'awaiting_partner')"
+                    decoration-success="state == 'resolved'"/>
+                <field name="activity_ids" widget="list_activity" optional="show"/>
+                <field name="outcome" optional="hide"/>
+                <field name="service_partner_id" optional="hide"/>
+                <field name="booking_reference" optional="hide"/>
+                <field name="first_response_hours" widget="float_time" optional="hide" readonly="1"/>
+                <field name="resolution_hours" widget="float_time" optional="hide" readonly="1"/>
+                <field name="sync_state" optional="hide" readonly="1"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="vn_care_enquiry_view_card" model="ir.ui.view">
+        <field name="name">vn.care.enquiry.view.card</field>
+        <field name="model">vn.care.enquiry</field>
+        <field name="arch" type="xml">
+            <card>
+                <templates>
+                    <t t-name="card">
+                        <main>
+                            <field name="customer_name" class="fw-bold fs-5"/>
+                            <field name="name" class="text-muted"/>
+                            <field name="category_id" widget="badge"/>
+                            <span t-if="record.travel_date.raw_value">Travel: <field name="travel_date"/></span>
+                            <footer>
+                                <div class="d-flex align-items-center">
+                                    <field name="activity_ids" widget="kanban_activity"/>
+                                    <field name="date_received" widget="date" class="ms-2 text-muted small"/>
+                                </div>
+                                <field name="user_id" widget="many2one_avatar_user" class="ms-auto"/>
+                            </footer>
+                        </main>
+                    </t>
+                </templates>
+            </card>
+        </field>
+    </record>
+
+    <record id="vn_care_enquiry_view_kanban" model="ir.ui.view">
+        <field name="name">vn.care.enquiry.view.kanban</field>
+        <field name="model">vn.care.enquiry</field>
+        <field name="arch" type="xml">
+            <kanban card_id="%(vn_care_enquiry_view_card)d" js_class="vn_care_enquiry_kanban"
+                default_group_by="state" create="0" group_create="0" group_delete="0" group_edit="0"
+                records_draggable="1" sample="1">
+                <progressbar field="activity_state"
+                    colors='{"planned": "success", "today": "warning", "overdue": "danger"}'/>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="vn_care_enquiry_view_form" model="ir.ui.view">
+        <field name="name">vn.care.enquiry.view.form</field>
+        <field name="model">vn.care.enquiry</field>
+        <field name="arch" type="xml">
+            <form string="Enquiry" create="0">
+                <header>
+                    <button name="action_assign_to_me" string="Assign to Me" type="object" class="btn-primary"
+                        invisible="user_id or state in ('resolved', 'closed')"/>
+                    <button name="action_start" string="Start" type="object" class="btn-primary"
+                        invisible="state != 'assigned'"/>
+                    <button name="action_resolve" string="Mark Resolved" type="object" class="btn-primary"
+                        invisible="state not in ('in_progress', 'awaiting_customer', 'awaiting_partner')"/>
+                    <button name="action_await_customer" string="Awaiting Customer" type="object"
+                        invisible="state not in ('assigned', 'in_progress', 'awaiting_partner')"/>
+                    <button name="action_await_partner" string="Awaiting Partner" type="object"
+                        invisible="state not in ('assigned', 'in_progress', 'awaiting_customer')"/>
+                    <button name="action_start" string="Back to In Progress" type="object"
+                        invisible="state not in ('awaiting_customer', 'awaiting_partner')"/>
+                    <button name="action_close" string="Close" type="object"
+                        invisible="state != 'resolved'"/>
+                    <button name="action_reopen" string="Reopen" type="object"
+                        invisible="state not in ('resolved', 'closed')"/>
+                    <field name="state" widget="statusbar" options="{'clickable': '1'}"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_partner_enquiries" type="object" class="oe_stat_button"
+                            icon="forum" invisible="partner_enquiry_count &lt; 2">
+                            <field name="partner_enquiry_count" string="Customer Enquiries" widget="statinfo"/>
+                        </button>
+                    </div>
+                    <widget name="web_ribbon" title="Converted" bg_color="text-bg-success"
+                        invisible="outcome != 'converted'"/>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1><field name="name"/></h1>
+                    </div>
+                    <group>
+                        <group name="customer" string="Customer">
+                            <field name="customer_name"/>
+                            <field name="email" widget="email"/>
+                            <field name="phone" widget="phone"/>
+                            <field name="partner_id" options="{'no_create': True}" readonly="1"/>
+                        </group>
+                        <group name="request" string="Request">
+                            <field name="category_id" options="{'no_create': True, 'no_open': True}"/>
+                            <field name="date_received" readonly="1"/>
+                            <field name="travel_date"/>
+                            <field name="user_id" widget="many2one_avatar_user" options="{'no_create': True}" groups="vn_care.vn_care_group_manager"/>
+                            <field name="user_id" widget="many2one_avatar_user" readonly="1" groups="!vn_care.vn_care_group_manager"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page name="details" string="Request Details">
+                            <field name="description" placeholder="What the customer asked for"/>
+                            <field name="detail_ids" readonly="1" invisible="not detail_ids">
+                                <list string="Category Details" create="0" delete="0" editable="bottom">
+                                    <field name="name"/>
+                                    <field name="value"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page name="outcome" string="Partner and Outcome">
+                            <group>
+                                <group>
+                                    <field name="service_partner_id"/>
+                                    <field name="outcome" widget="radio"/>
+                                    <field name="booking_reference"/>
+                                </group>
+                                <group string="Timings">
+                                    <field name="first_response_date"/>
+                                    <field name="first_response_hours" widget="float_time"/>
+                                    <field name="last_customer_reply_date"/>
+                                    <field name="resolved_date"/>
+                                    <field name="resolution_hours" widget="float_time"/>
+                                    <field name="closed_date"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page name="website" string="Website" groups="vn_care.vn_care_group_manager">
+                            <group>
+                                <group>
+                                    <field name="submission_id"/>
+                                    <field name="sync_state"/>
+                                    <field name="sync_date"/>
+                                    <field name="sync_error" invisible="not sync_error"/>
+                                </group>
+                                <group>
+                                    <button name="action_retry_sync" string="Send to Website Again" type="object"
+                                        class="btn-secondary" invisible="sync_state == 'synced' or not submission_id"/>
+                                </group>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="vn_care_enquiry_view_pivot" model="ir.ui.view">
+        <field name="name">vn.care.enquiry.view.pivot</field>
+        <field name="model">vn.care.enquiry</field>
+        <field name="arch" type="xml">
+            <pivot string="Enquiries" sample="1">
+                <field name="category_id" type="row"/>
+                <field name="state" type="col"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="vn_care_enquiry_view_graph" model="ir.ui.view">
+        <field name="name">vn.care.enquiry.view.graph</field>
+        <field name="model">vn.care.enquiry</field>
+        <field name="arch" type="xml">
+            <graph string="Enquiries" type="bar" sample="1">
+                <field name="category_id"/>
+            </graph>
+        </field>
+    </record>
+
+    <record id="vn_care_enquiry_view_activity" model="ir.ui.view">
+        <field name="name">vn.care.enquiry.view.activity</field>
+        <field name="model">vn.care.enquiry</field>
+        <field name="arch" type="xml">
+            <activity string="Follow-ups">
+                <templates>
+                    <div t-name="activity-box">
+                        <div>
+                            <field name="name" display="full" class="o_text_block"/>
+                            <field name="customer_name" muted="1" display="full" class="o_text_block"/>
+                        </div>
+                    </div>
+                </templates>
+            </activity>
+        </field>
+    </record>
+
+    <!-- Actions -->
+    <record id="vn_care_enquiry_action" model="ir.actions.act_window">
+        <field name="name">Enquiries</field>
+        <field name="res_model">vn.care.enquiry</field>
+        <field name="path">care-enquiries</field>
+        <field name="view_mode">list,kanban,form,activity</field>
+        <field name="search_view_id" ref="vn_care_enquiry_view_search"/>
+        <field name="context">{'search_default_outstanding': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No enquiry here</p>
+            <p>Every request submitted on VisitNigeria.io appears in this list automatically.</p>
+        </field>
+    </record>
+
+    <record id="vn_care_enquiry_action_all" model="ir.actions.act_window">
+        <field name="name">All Enquiries</field>
+        <field name="res_model">vn.care.enquiry</field>
+        <field name="path">care-all-enquiries</field>
+        <field name="view_mode">list,kanban,form,activity</field>
+        <field name="search_view_id" ref="vn_care_enquiry_view_search"/>
+        <field name="context">{}</field>
+    </record>
+
+    <record id="vn_care_enquiry_action_unassigned" model="ir.actions.act_window">
+        <field name="name">To Assign</field>
+        <field name="res_model">vn.care.enquiry</field>
+        <field name="path">care-to-assign</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="search_view_id" ref="vn_care_enquiry_view_search"/>
+        <field name="context">{'search_default_unassigned': 1, 'search_default_outstanding': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Nothing is waiting to be assigned</p>
+        </field>
+    </record>
+
+    <record id="vn_care_enquiry_action_team" model="ir.actions.act_window">
+        <field name="name">Team Workload</field>
+        <field name="res_model">vn.care.enquiry</field>
+        <field name="path">care-team</field>
+        <field name="view_mode">kanban,list,form</field>
+        <field name="search_view_id" ref="vn_care_enquiry_view_search"/>
+        <field name="context">{'search_default_outstanding': 1, 'group_by': 'user_id'}</field>
+    </record>
+
+    <record id="vn_care_enquiry_action_followups" model="ir.actions.act_window">
+        <field name="name">Follow-ups</field>
+        <field name="res_model">vn.care.enquiry</field>
+        <field name="path">care-follow-ups</field>
+        <field name="view_mode">activity,list,form</field>
+        <field name="search_view_id" ref="vn_care_enquiry_view_search"/>
+        <field name="context">{'search_default_outstanding': 1}</field>
+    </record>
+
+    <!-- Reports -->
+    <record id="vn_care_enquiry_action_report_category" model="ir.actions.act_window">
+        <field name="name">Enquiries by Category</field>
+        <field name="res_model">vn.care.enquiry</field>
+        <field name="path">care-report-category</field>
+        <field name="view_mode">graph,pivot,list</field>
+        <field name="search_view_id" ref="vn_care_enquiry_view_search"/>
+        <field name="context">{'graph_groupbys': ['category_id'], 'pivot_row_groupby': ['category_id'], 'pivot_column_groupby': ['date_received:month'], 'pivot_measures': ['__count']}</field>
+    </record>
+
+    <record id="vn_care_enquiry_action_report_conversion" model="ir.actions.act_window">
+        <field name="name">Enquiry-to-Booking Conversion</field>
+        <field name="res_model">vn.care.enquiry</field>
+        <field name="path">care-report-conversion</field>
+        <field name="view_mode">pivot,graph,list</field>
+        <field name="search_view_id" ref="vn_care_enquiry_view_search"/>
+        <field name="context">{'pivot_row_groupby': ['category_id'], 'pivot_column_groupby': [], 'pivot_measures': ['__count', 'conversion_rate'], 'graph_groupbys': ['category_id'], 'graph_measure': 'conversion_rate'}</field>
+    </record>
+
+    <record id="vn_care_enquiry_action_report_outstanding" model="ir.actions.act_window">
+        <field name="name">Outstanding Requests</field>
+        <field name="res_model">vn.care.enquiry</field>
+        <field name="path">care-report-outstanding</field>
+        <field name="view_mode">pivot,graph,list</field>
+        <field name="search_view_id" ref="vn_care_enquiry_view_search"/>
+        <field name="context">{'search_default_outstanding': 1, 'pivot_row_groupby': ['date_received:week'], 'pivot_column_groupby': ['state'], 'pivot_measures': ['__count'], 'graph_groupbys': ['state']}</field>
+    </record>
+
+    <record id="vn_care_enquiry_action_report_agents" model="ir.actions.act_window">
+        <field name="name">Agent Performance</field>
+        <field name="res_model">vn.care.enquiry</field>
+        <field name="path">care-report-agents</field>
+        <field name="view_mode">pivot,graph,list</field>
+        <field name="search_view_id" ref="vn_care_enquiry_view_search"/>
+        <field name="context">{'pivot_row_groupby': ['user_id'], 'pivot_column_groupby': [], 'pivot_measures': ['__count', 'first_response_hours', 'resolution_hours', 'resolution_rate', 'conversion_rate'], 'graph_groupbys': ['user_id']}</field>
+    </record>
+
+    <record id="vn_care_enquiry_action_report_response" model="ir.actions.act_window">
+        <field name="name">Response and Resolution</field>
+        <field name="res_model">vn.care.enquiry</field>
+        <field name="path">care-report-response</field>
+        <field name="view_mode">pivot,graph,list</field>
+        <field name="search_view_id" ref="vn_care_enquiry_view_search"/>
+        <field name="context">{'pivot_row_groupby': ['date_received:month'], 'pivot_column_groupby': [], 'pivot_measures': ['__count', 'first_response_hours', 'resolution_hours', 'resolution_rate'], 'graph_groupbys': ['date_received:month'], 'graph_measure': 'first_response_hours', 'graph_mode': 'line'}</field>
+    </record>
+
+    <record id="vn_care_dashboard_action" model="ir.actions.client">
+        <field name="name">Overview</field>
+        <field name="tag">vn_care.dashboard</field>
+        <field name="path">care-overview</field>
+    </record>
+</odoo>

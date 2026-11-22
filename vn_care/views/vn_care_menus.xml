@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="vn_care_menu_root" name="Customer Care" sequence="5"
+        web_icon="vn_care,static/description/icon.png"
+        groups="vn_care.vn_care_group_agent"/>
+
+    <menuitem id="vn_care_menu_overview" name="Overview" parent="vn_care_menu_root" sequence="1"
+        action="vn_care_dashboard_action"/>
+
+    <menuitem id="vn_care_menu_enquiries" name="Enquiries" parent="vn_care_menu_root" sequence="10"/>
+    <menuitem id="vn_care_menu_enquiries_mine" name="Outstanding" parent="vn_care_menu_enquiries" sequence="10"
+        action="vn_care_enquiry_action"/>
+    <menuitem id="vn_care_menu_enquiries_unassigned" name="To Assign" parent="vn_care_menu_enquiries" sequence="20"
+        action="vn_care_enquiry_action_unassigned" groups="vn_care.vn_care_group_manager"/>
+    <menuitem id="vn_care_menu_enquiries_all" name="All Enquiries" parent="vn_care_menu_enquiries" sequence="30"
+        action="vn_care_enquiry_action_all" groups="vn_care.vn_care_group_manager"/>
+    <menuitem id="vn_care_menu_followups" name="Follow-ups" parent="vn_care_menu_enquiries" sequence="40"
+        action="vn_care_enquiry_action_followups"/>
+
+    <menuitem id="vn_care_menu_team" name="Team" parent="vn_care_menu_root" sequence="20"
+        groups="vn_care.vn_care_group_manager"/>
+    <menuitem id="vn_care_menu_team_workload" name="Workload" parent="vn_care_menu_team" sequence="10"
+        action="vn_care_enquiry_action_team"/>
+    <menuitem id="vn_care_menu_team_members" name="Members" parent="vn_care_menu_team" sequence="20"
+        action="res_users_action_vn_care_team" groups="vn_care.vn_care_group_admin"/>
+    <menuitem id="vn_care_menu_team_invite" name="Add Member" parent="vn_care_menu_team" sequence="30"
+        action="vn_care_user_invite_action" groups="vn_care.vn_care_group_admin"/>
+
+    <menuitem id="vn_care_menu_reports" name="Reports" parent="vn_care_menu_root" sequence="30"
+        groups="vn_care.vn_care_group_admin"/>
+    <menuitem id="vn_care_menu_report_category" name="Enquiries by Category" parent="vn_care_menu_reports" sequence="10"
+        action="vn_care_enquiry_action_report_category"/>
+    <menuitem id="vn_care_menu_report_conversion" name="Booking Conversion" parent="vn_care_menu_reports" sequence="20"
+        action="vn_care_enquiry_action_report_conversion"/>
+    <menuitem id="vn_care_menu_report_outstanding" name="Outstanding Requests" parent="vn_care_menu_reports" sequence="30"
+        action="vn_care_enquiry_action_report_outstanding"/>
+    <menuitem id="vn_care_menu_report_response" name="Response and Resolution" parent="vn_care_menu_reports" sequence="40"
+        action="vn_care_enquiry_action_report_response"/>
+    <menuitem id="vn_care_menu_report_agents" name="Agent Performance" parent="vn_care_menu_reports" sequence="50"
+        action="vn_care_enquiry_action_report_agents"/>
+
+    <menuitem id="vn_care_menu_config" name="Configuration" parent="vn_care_menu_root" sequence="90"
+        groups="vn_care.vn_care_group_admin"/>
+    <menuitem id="vn_care_menu_config_categories" name="Service Categories" parent="vn_care_menu_config" sequence="10"
+        action="vn_care_category_action"/>
+    <menuitem id="vn_care_menu_config_settings" name="Settings" parent="vn_care_menu_config" sequence="0"
+        action="res_config_settings_action" groups="base.group_system"/>
+</odoo>

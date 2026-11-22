@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="mail_template_enquiry_acknowledgement" model="mail.template">
+        <field name="name">Customer Care: Enquiry Received</field>
+        <field name="model_id" ref="model_vn_care_enquiry"/>
+        <field name="subject">We have received your request [{{ object.name }}]</field>
+        <field name="email_from">{{ object.env.company.email_formatted or user.email_formatted }}</field>
+        <field name="use_default_to" eval="True"/>
+        <field name="description">Sent automatically to the customer when an enquiry arrives from the website</field>
+        <field name="email_layout_xmlid">mail.mail_notification_light</field>
+        <field name="body_html" type="html">
+<div>
+    Dear <t t-out="object.customer_name or 'customer'">Ada Obi</t>,<br/><br/>
+    Thank you for contacting Visit Nigeria. We have received your
+    <t t-out="object.category_id.name or ''">Hotel Reservations</t> request.<br/>
+    Your reference number is <strong t-out="object.name or ''">VN-ENQ-000123</strong>.<br/><br/>
+    A member of our Customer Care team will get back to you shortly. To add
+    information to your request, simply reply to this email.<br/><br/>
+    Kind regards,<br/>
+    Visit Nigeria Customer Care
+</div>
+        </field>
+        <field name="auto_delete" eval="True"/>
+    </record>
+
+    <record id="mail_template_enquiry_more_information" model="mail.template">
+        <field name="name">Customer Care: Request for More Information</field>
+        <field name="model_id" ref="model_vn_care_enquiry"/>
+        <field name="subject">More information needed for your request [{{ object.name }}]</field>
+        <field name="use_default_to" eval="True"/>
+        <field name="description">Standard reply asking the customer for the missing details</field>
+        <field name="body_html" type="html">
+<div>
+    Dear <t t-out="object.customer_name or 'customer'">Ada Obi</t>,<br/><br/>
+    Thank you for your <t t-out="object.category_id.name or ''">Hotel Reservations</t> request
+    (<t t-out="object.name or ''">VN-ENQ-000123</t>). To proceed, we need a few more details from you:<br/><br/>
+    <ul><li></li></ul><br/>
+    Please reply to this email with the information above.<br/><br/>
+    Kind regards,<br/>
+    <t t-out="user.name or ''">Customer Care</t><br/>
+    Visit Nigeria Customer Care
+</div>
+        </field>
+    </record>
+
+    <record id="mail_template_enquiry_resolved" model="mail.template">
+        <field name="name">Customer Care: Request Resolved</field>
+        <field name="model_id" ref="model_vn_care_enquiry"/>
+        <field name="subject">Your request has been resolved [{{ object.name }}]</field>
+        <field name="use_default_to" eval="True"/>
+        <field name="description">Standard reply confirming that the request has been dealt with</field>
+        <field name="body_html" type="html">
+<div>
+    Dear <t t-out="object.customer_name or 'customer'">Ada Obi</t>,<br/><br/>
+    We are pleased to let you know that your request
+    <t t-out="object.name or ''">VN-ENQ-000123</t> has been resolved.<br/><br/>
+    If anything is still outstanding, reply to this email and we will reopen it.<br/><br/>
+    Kind regards,<br/>
+    <t t-out="user.name or ''">Customer Care</t><br/>
+    Visit Nigeria Customer Care
+</div>
+        </field>
+    </record>
+</odoo>

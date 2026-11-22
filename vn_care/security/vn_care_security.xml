@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="module_category_vn_care" model="ir.module.category">
+        <field name="name">Customer Care</field>
+        <field name="sequence">5</field>
+    </record>
+
+    <record id="res_groups_privilege_vn_care" model="res.groups.privilege">
+        <field name="name">Customer Care</field>
+        <field name="category_id" ref="module_category_vn_care"/>
+    </record>
+
+    <record id="vn_care_group_agent" model="res.groups">
+        <field name="name">Customer Care Agent</field>
+        <field name="sequence">10</field>
+        <field name="privilege_id" ref="res_groups_privilege_vn_care"/>
+        <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+        <field name="comment">Works on the enquiries assigned to them: replies to customers, adds notes, updates the status and records follow-ups.</field>
+    </record>
+
+    <record id="vn_care_group_manager" model="res.groups">
+        <field name="name">Customer Care Manager</field>
+        <field name="sequence">20</field>
+        <field name="privilege_id" ref="res_groups_privilege_vn_care"/>
+        <field name="implied_ids" eval="[(4, ref('vn_care_group_agent'))]"/>
+        <field name="comment">Sees every enquiry, assigns and reassigns them and monitors the team.</field>
+    </record>
+
+    <record id="vn_care_group_admin" model="res.groups">
+        <field name="name">Super Admin / Management</field>
+        <field name="sequence">30</field>
+        <field name="privilege_id" ref="res_groups_privilege_vn_care"/>
+        <field name="implied_ids" eval="[(4, ref('vn_care_group_manager')), (4, ref('base.group_allow_export'))]"/>
+        <field name="user_ids" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
+        <field name="comment">Full dashboard access: reports, exports, staff management, categories.</field>
+    </record>
+
+    <record id="vn_care_group_pickup" model="res.groups">
+        <field name="name">Pick up unassigned enquiries</field>
+        <field name="comment">Technical group, switched on from the settings: agents see the unassigned enquiries and can assign one to themselves.</field>
+    </record>
+
+    <record id="vn_care_group_api" model="res.groups">
+        <field name="name">Website Integration (API)</field>
+        <field name="api_key_duration">365</field>
+        <field name="comment">Technical group for the account whose API key the website uses to send enquiries. It gives no access to the dashboard.</field>
+    </record>
+</odoo>

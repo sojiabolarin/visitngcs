@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="vn_care_user_invite_view_form" model="ir.ui.view">
+        <field name="name">vn.care.user.invite.view.form</field>
+        <field name="model">vn.care.user.invite</field>
+        <field name="arch" type="xml">
+            <form string="Customer Care User">
+                <group>
+                    <field name="user_id" invisible="not user_id"/>
+                    <field name="name" invisible="user_id" required="not user_id"/>
+                    <field name="email" widget="email" invisible="user_id" required="not user_id"/>
+                    <field name="level" widget="radio"/>
+                </group>
+                <footer>
+                    <button name="action_apply" string="Save" type="object" class="btn-primary" data-hotkey="q"/>
+                    <button string="Discard" special="cancel" data-hotkey="x"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="vn_care_user_invite_action" model="ir.actions.act_window">
+        <field name="name">Add Team Member</field>
+        <field name="res_model">vn.care.user.invite</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>

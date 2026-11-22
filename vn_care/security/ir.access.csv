@@ -1,0 +1,12 @@
+id,name,model_id,group_id/id,operation,domain
+vn_care_enquiry_rule_agent,Agents work on the enquiries assigned to them,vn.care.enquiry,vn_care.vn_care_group_agent,ru,"[('user_id', '=', user.id)]"
+vn_care_enquiry_rule_pickup,Agents see unassigned enquiries when pick-up is on,vn.care.enquiry,vn_care.vn_care_group_pickup,ru,"[('user_id', '=', False)]"
+vn_care_enquiry_detail_rule_pickup,Agents read the details of unassigned enquiries when pick-up is on,vn.care.enquiry.detail,vn_care.vn_care_group_pickup,r,"[('enquiry_id.user_id', '=', False)]"
+vn_care_enquiry_rule_manager,Managers work on every enquiry,vn.care.enquiry,vn_care.vn_care_group_manager,cru,
+vn_care_enquiry_rule_admin,Management has full access to enquiries,vn.care.enquiry,vn_care.vn_care_group_admin,crud,
+vn_care_enquiry_detail_rule_agent,Agents read the details of their enquiries,vn.care.enquiry.detail,vn_care.vn_care_group_agent,r,"[('enquiry_id.user_id', '=', user.id)]"
+vn_care_enquiry_detail_rule_manager,Managers manage the details of every enquiry,vn.care.enquiry.detail,vn_care.vn_care_group_manager,cru,
+vn_care_enquiry_detail_rule_admin,Management has full access to enquiry details,vn.care.enquiry.detail,vn_care.vn_care_group_admin,crud,
+vn_care_category_rule_agent,Care users read the service categories,vn.care.category,vn_care.vn_care_group_agent,r,
+vn_care_category_rule_admin,Management manages the service categories,vn.care.category,vn_care.vn_care_group_admin,crud,
+vn_care_user_invite_rule_admin,Management manages the care team,vn.care.user.invite,vn_care.vn_care_group_admin,crud,
