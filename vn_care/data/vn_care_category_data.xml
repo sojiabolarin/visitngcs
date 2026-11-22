@@ -1,57 +1,132 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo noupdate="1">
-    <record id="vn_care_category_holiday_packages" model="vn.care.category">
-        <field name="name">Holiday and Travel Packages</field>
-        <field name="code">holiday_packages</field>
+    <!-- Mirrors the request types, forms and services of VisitNigeria.io as read on
+         22 November 2026. Each code is the label the website shows, lower-cased with
+         underscores, so the website can send its own label as the category. -->
+    <record id="vn_care_category_flight_booking_support" model="vn.care.category">
+        <field name="name">Flight booking support</field>
+        <field name="code">flight_booking_support</field>
         <field name="sequence">10</field>
         <field name="color">1</field>
     </record>
-    <record id="vn_care_category_flights" model="vn.care.category">
-        <field name="name">Flight Bookings</field>
-        <field name="code">flights</field>
+    <record id="vn_care_category_hotel_booking_support" model="vn.care.category">
+        <field name="name">Hotel booking support</field>
+        <field name="code">hotel_booking_support</field>
         <field name="sequence">20</field>
         <field name="color">2</field>
     </record>
-    <record id="vn_care_category_hotels" model="vn.care.category">
-        <field name="name">Hotel Reservations</field>
-        <field name="code">hotels</field>
+    <record id="vn_care_category_visa_support" model="vn.care.category">
+        <field name="name">Visa support</field>
+        <field name="code">visa_support</field>
         <field name="sequence">30</field>
         <field name="color">3</field>
     </record>
-    <record id="vn_care_category_visa" model="vn.care.category">
-        <field name="name">Visa Assistance</field>
-        <field name="code">visa</field>
+    <record id="vn_care_category_esim_setup_help" model="vn.care.category">
+        <field name="name">eSIM setup help</field>
+        <field name="code">esim_setup_help</field>
         <field name="sequence">40</field>
         <field name="color">4</field>
     </record>
-    <record id="vn_care_category_transfers" model="vn.care.category">
-        <field name="name">Airport Transfers and Transportation</field>
-        <field name="code">transfers</field>
+    <record id="vn_care_category_concierge_request" model="vn.care.category">
+        <field name="name">Concierge request</field>
+        <field name="code">concierge_request</field>
         <field name="sequence">50</field>
         <field name="color">5</field>
     </record>
-    <record id="vn_care_category_esim" model="vn.care.category">
-        <field name="name">eSIM and Connectivity</field>
-        <field name="code">esim</field>
+    <record id="vn_care_category_event_ticket_sales_request" model="vn.care.category">
+        <field name="name">Event ticket sales request</field>
+        <field name="code">event_ticket_sales_request</field>
         <field name="sequence">60</field>
         <field name="color">6</field>
     </record>
-    <record id="vn_care_category_insurance" model="vn.care.category">
-        <field name="name">Travel Insurance</field>
-        <field name="code">insurance</field>
+    <record id="vn_care_category_car_rental_support" model="vn.care.category">
+        <field name="name">Car rental support</field>
+        <field name="code">car_rental_support</field>
         <field name="sequence">70</field>
         <field name="color">7</field>
     </record>
-    <record id="vn_care_category_concierge" model="vn.care.category">
-        <field name="name">Concierge and Travel Assistance</field>
-        <field name="code">concierge</field>
+    <record id="vn_care_category_partner_inquiry" model="vn.care.category">
+        <field name="name">Partner inquiry</field>
+        <field name="code">partner_inquiry</field>
         <field name="sequence">80</field>
         <field name="color">8</field>
     </record>
-    <record id="vn_care_category_events" model="vn.care.category">
-        <field name="name">Events, Experiences and Activities</field>
-        <field name="code">events</field>
+    <record id="vn_care_category_insurance" model="vn.care.category">
+        <field name="name">Insurance</field>
+        <field name="code">insurance</field>
         <field name="sequence">90</field>
         <field name="color">9</field>
+    </record>
+    <record id="vn_care_category_packages" model="vn.care.category">
+        <field name="name">Packages</field>
+        <field name="code">packages</field>
+        <field name="sequence">100</field>
+        <field name="color">10</field>
+    </record>
+    <record id="vn_care_category_package_request" model="vn.care.category">
+        <field name="name">Package request</field>
+        <field name="code">package_request</field>
+        <field name="sequence">110</field>
+        <field name="color">11</field>
+    </record>
+    <record id="vn_care_category_apartment_enquiry" model="vn.care.category">
+        <field name="name">Apartment enquiry</field>
+        <field name="code">apartment_enquiry</field>
+        <field name="sequence">120</field>
+        <field name="color">1</field>
+    </record>
+    <record id="vn_care_category_trip_builder_request" model="vn.care.category">
+        <field name="name">Trip Builder request</field>
+        <field name="code">trip_builder_request</field>
+        <field name="sequence">130</field>
+        <field name="color">2</field>
+    </record>
+    <record id="vn_care_category_medical_services" model="vn.care.category">
+        <field name="name">Medical services</field>
+        <field name="code">medical_services</field>
+        <field name="sequence">140</field>
+        <field name="color">3</field>
+    </record>
+    <record id="vn_care_category_currency_and_travel_card" model="vn.care.category">
+        <field name="name">Currency and travel card</field>
+        <field name="code">currency_and_travel_card</field>
+        <field name="sequence">150</field>
+        <field name="color">4</field>
+    </record>
+    <record id="vn_care_category_shop" model="vn.care.category">
+        <field name="name">Shop</field>
+        <field name="code">shop</field>
+        <field name="sequence">160</field>
+        <field name="color">5</field>
+    </record>
+    <record id="vn_care_category_general_questions" model="vn.care.category">
+        <field name="name">General questions</field>
+        <field name="code">general_questions</field>
+        <field name="sequence">170</field>
+        <field name="color">6</field>
+    </record>
+    <record id="vn_care_category_partnerships" model="vn.care.category">
+        <field name="name">Partnerships</field>
+        <field name="code">partnerships</field>
+        <field name="sequence">180</field>
+        <field name="color">7</field>
+    </record>
+    <record id="vn_care_category_media_and_press" model="vn.care.category">
+        <field name="name">Media and press</field>
+        <field name="code">media_and_press</field>
+        <field name="sequence">190</field>
+        <field name="color">8</field>
+    </record>
+    <record id="vn_care_category_nigerians_abroad" model="vn.care.category">
+        <field name="name">Nigerians abroad</field>
+        <field name="code">nigerians_abroad</field>
+        <field name="sequence">200</field>
+        <field name="color">9</field>
+    </record>
+    <record id="vn_care_category_website_or_account_help" model="vn.care.category">
+        <field name="name">Website or account help</field>
+        <field name="code">website_or_account_help</field>
+        <field name="sequence">210</field>
+        <field name="color">10</field>
     </record>
 </odoo>

@@ -16,7 +16,7 @@ class VnCareCommon(BaseCommon):
         cls.other_agent = cls._create_care_user('agent2@care.test', 'vn_care.vn_care_group_agent')
         cls.manager = cls._create_care_user('manager@care.test', 'vn_care.vn_care_group_manager')
         cls.management = cls._create_care_user('management@care.test', 'vn_care.vn_care_group_admin')
-        cls.category = cls.env.ref('vn_care.vn_care_category_hotels')
+        cls.category = cls.env.ref('vn_care.vn_care_category_hotel_booking_support')
         cls.enquiry = cls.env['vn.care.enquiry'].create({
             'customer_name': 'Ada Obi',
             'email': 'ada.obi@example.com',

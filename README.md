@@ -30,6 +30,21 @@ The module records whether an enquiry became a booking and the partner's
 booking reference. It takes no bookings and no payments: those stay with the
 service partners.
 
+## Service categories
+
+The starting categories mirror VisitNigeria.io as it stood on 22 November 2026:
+
+- the request types of its request form: flight booking support, hotel booking
+  support, visa support, eSIM setup help, concierge request, event ticket sales
+  request, car rental support, partner inquiry, insurance, packages, package request;
+- its two other request forms: apartment enquiry and Trip Builder request;
+- the services bought on the site, for after-sales questions: medical services,
+  currency and travel card, shop;
+- the topics of its contact form: general questions, partnerships, media and
+  press, Nigerians abroad, website or account help.
+
+Management edits the list under *Configuration > Service Categories*.
+
 ## Access levels
 
 | Level | Sees | Can do |
@@ -79,8 +94,7 @@ odoo-bin -d <database> -i vn_care --test-tags /vn_care --stop-after-init
 ```json
 {
   "submission_id": "web-9001",
-  "category": "hotels",
-  "category_name": "Hotel Reservations",
+  "category": "Hotel booking support",
   "customer": {"name": "Ada Obi", "email": "ada.obi@example.com", "phone": "+2348000000001"},
   "message": "Two rooms in Lagos for five nights",
   "travel_date": "2026-12-20",
@@ -92,8 +106,8 @@ odoo-bin -d <database> -i vn_care --test-tags /vn_care --stop-after-init
 | Field | Required | Note |
 | --- | --- | --- |
 | `submission_id` | yes | The website's own identifier. Sending it again returns the existing enquiry, so a retry is always safe. |
-| `category` | yes | Category code. An unknown code creates the category. |
-| `category_name` | no | Display name used when the category is created. |
+| `category` | yes | The request type as the website labels it ("Hotel booking support") or its code (`hotel_booking_support`); both match the same category. An unknown one creates the category. |
+| `category_name` | no | Display name used when a category is created. |
 | `customer.name` | yes | |
 | `customer.email`, `customer.phone` | no | Without an email, the agent cannot reply by email. |
 | `message` | no | The request as typed by the customer. |
@@ -126,7 +140,7 @@ X-VN-Care-Event: enquiry.updated
 X-VN-Care-Signature: <hex HMAC-SHA256 of the raw body, keyed with the shared secret>
 
 {"submission_id":"web-9001","reference":"VN-ENQ-000027","status":"assigned",
- "category":"hotels","assigned_agent":"Agent Name","outcome":"pending",
+ "category":"hotel_booking_support","assigned_agent":"Agent Name","outcome":"pending",
  "booking_reference":null,"received_at":"2026-11-22T14:00:00Z","updated_at":"2026-11-22T14:46:10Z"}
 ```
 

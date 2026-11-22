@@ -29,7 +29,7 @@ class TestApi(HttpCase):
         cls.plain_key = ApiKeys.with_user(cls.plain_user)._generate('vn_care', 'other', expiration)
         cls.payload = {
             'submission_id': 'web-1001',
-            'category': 'hotels',
+            'category': 'Hotel booking support',
             'customer': {'name': 'Ada Obi', 'email': 'ada.obi@example.com', 'phone': '+2348000000001'},
             'message': 'Two rooms in Lagos',
             'travel_date': '2026-12-20',
@@ -51,7 +51,7 @@ class TestApi(HttpCase):
         enquiry = self.env['vn.care.enquiry'].search([('submission_id', '=', 'web-1001')])
         self.assertEqual(len(enquiry), 1)
         self.assertEqual(enquiry.customer_name, 'Ada Obi')
-        self.assertEqual(enquiry.category_id.code, 'hotels')
+        self.assertEqual(enquiry.category_id.code, 'hotel_booking_support')
         self.assertEqual(str(enquiry.date_received), '2026-11-20 08:30:00')
         self.assertEqual(enquiry.detail_ids.mapped('name'), ['City', 'Guests'])
         self.assertEqual(enquiry.sync_state, 'synced')
@@ -67,11 +67,11 @@ class TestApi(HttpCase):
         self.assertEqual(status.json()['status'], 'new')
 
     def test_new_category_is_created(self):
-        response = self._post(dict(self.payload, submission_id='web-1002', category='Car Rental'))
+        response = self._post(dict(self.payload, submission_id='web-1002', category='Boat Charter'))
         self.assertEqual(response.status_code, 201, response.text)
-        category = self.env['vn.care.category'].search([('code', '=', 'car_rental')])
+        category = self.env['vn.care.category'].search([('code', '=', 'boat_charter')])
         self.assertTrue(category.needs_review)
-        self.assertEqual(category.name, 'Car Rental')
+        self.assertEqual(category.name, 'Boat Charter')
 
     def test_batch_and_validation(self):
         response = self._post({'enquiries': [
@@ -84,7 +84,7 @@ class TestApi(HttpCase):
         self.assertIn('error', results[1])
         self.assertEqual(
             self.env['vn.care.enquiry'].search([('submission_id', '=', 'web-2001')]).state, 'closed')
-        single = self._post({'category': 'hotels'})
+        single = self._post({'category': 'insurance'})
         self.assertEqual(single.status_code, 422)
 
     @mute_logger('odoo.http')
