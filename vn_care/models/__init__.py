@@ -5,4 +5,5 @@ from . import (
     vn_care_category,
     vn_care_enquiry,
     vn_care_enquiry_detail,
+    vn_care_message_sync,
 )

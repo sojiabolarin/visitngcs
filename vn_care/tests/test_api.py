@@ -66,6 +66,23 @@ class TestApi(HttpCase):
             '/vn_care/api/v1/enquiries/web-1001', headers={'Authorization': f'Bearer {self.api_key}'})
         self.assertEqual(status.json()['status'], 'new')
 
+    def test_customer_message(self):
+        self._post(self.payload)
+        url = '/vn_care/api/v1/enquiries/web-1001/messages'
+        headers = {'Authorization': f'Bearer {self.api_key}'}
+        response = self.url_open(
+            url, json={'message_id': 'wm-9', 'body': 'Any update?', 'sent_at': '2026-11-21T10:00:00Z'},
+            headers=headers)
+        self.assertEqual(response.status_code, 201, response.text)
+        enquiry = self.env['vn.care.enquiry'].search([('submission_id', '=', 'web-1001')])
+        self.assertEqual(str(enquiry.message_sync_ids.message_id.date), '2026-11-21 10:00:00')
+        again = self.url_open(url, json={'message_id': 'wm-9', 'body': 'Any update?'}, headers=headers)
+        self.assertEqual(again.status_code, 200)
+        self.assertFalse(again.json()['created'])
+        missing = self.url_open(
+            '/vn_care/api/v1/enquiries/nope/messages', json={'message_id': 'x', 'body': 'x'}, headers=headers)
+        self.assertEqual(missing.status_code, 404)
+
     def test_new_category_is_created(self):
         response = self._post(dict(self.payload, submission_id='web-1002', category='Boat Charter'))
         self.assertEqual(response.status_code, 201, response.text)

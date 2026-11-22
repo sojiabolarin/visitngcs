@@ -19,6 +19,8 @@ DONE_STATES = ('resolved', 'closed')
 SYNC_FIELDS = ('state', 'user_id', 'outcome', 'booking_reference')
 HTTP_TIMEOUT = 10
 SYNC_BATCH_SIZE = 50
+# Messages that are part of the conversation with the customer.
+CONVERSATION_TYPES = ('comment', 'email', 'email_outgoing')
 
 
 class VnCareEnquiry(models.Model):
@@ -101,6 +103,10 @@ class VnCareEnquiry(models.Model):
         string='Website Sync', default='synced', required=True, readonly=True, copy=False)
     sync_error = fields.Char(readonly=True, copy=False)
     sync_date = fields.Datetime(string='Last Sent to Website', readonly=True, copy=False)
+
+    message_sync_ids = fields.One2many(
+        'vn.care.message.sync', 'enquiry_id', string='Messages Exchanged with the Website',
+        groups='vn_care.vn_care_group_manager')
 
     _submission_uniq = models.UniqueIndex(
         '(submission_id) WHERE submission_id IS NOT NULL',
@@ -312,15 +318,18 @@ class VnCareEnquiry(models.Model):
         """An email from outside the team on an enquiry is the customer (or
         the partner) answering: put the enquiry back in the hands of the agent."""
         author = self.env['res.partner'].browse(msg_dict.get('author_id'))
-        from_staff = any(not user.share for user in author.sudo().user_ids)
-        if not from_staff:
-            now = fields.Datetime.now()
-            for enquiry in self:
-                vals = {'last_customer_reply_date': now}
-                if enquiry.state in ('awaiting_customer', 'awaiting_partner', *DONE_STATES):
-                    vals['state'] = 'in_progress' if enquiry.user_id else 'new'
-                enquiry.write(vals)
+        if not any(not user.share for user in author.sudo().user_ids):
+            self._register_customer_reply()
         return super().message_update(msg_dict, update_vals=update_vals)
+
+    def _register_customer_reply(self):
+        """The customer answered, by email or in their account on the website."""
+        now = fields.Datetime.now()
+        for enquiry in self:
+            vals = {'last_customer_reply_date': now}
+            if enquiry.state in ('awaiting_customer', 'awaiting_partner', *DONE_STATES):
+                vals['state'] = 'in_progress' if enquiry.user_id else 'new'
+            enquiry.write(vals)
 
     def _message_post_after_hook(self, message):
         """The first email an agent sends to the customer stops the response clock."""
@@ -336,7 +345,29 @@ class VnCareEnquiry(models.Model):
             self.sudo().first_response_date = fields.Datetime.now()
             if self.state in ('new', 'assigned') and self.user_id:
                 self.sudo().state = 'in_progress'
+        self._queue_message_for_website(message)
         return super()._message_post_after_hook(message)
+
+    def _queue_message_for_website(self, message):
+        """Every message of the conversation with the customer goes to the
+        website, so that the customer reads the whole thread in their account.
+        Internal notes never leave, and neither does a message that came from
+        the website in the first place."""
+        if (
+            not self
+            or not self.submission_id
+            or self.env.context.get('vn_care_from_website')
+            or message.message_type not in CONVERSATION_TYPES
+            or message.subtype_id.internal
+        ):
+            return
+        # sudo - vn.care.message.sync: technical queue, filled whoever posts
+        self.env['vn.care.message.sync'].sudo().create({
+            'enquiry_id': self.id,
+            'message_id': message.id,
+            'direction': 'out',
+        })
+        self._trigger_sync_cron()
 
     # ------------------------------------------------------------
     # ACTIONS
@@ -528,6 +559,43 @@ class VnCareEnquiry(models.Model):
             parsed = parsed.astimezone(UTC).replace(tzinfo=None)
         return parsed
 
+    def _api_post_customer_message(self, payload):
+        """Record what the customer wrote in their account on the website.
+
+        :param dict payload: ``message_id`` (the website's own identifier),
+            ``body`` (plain text) and optionally ``sent_at``
+        :return: dict with ``created`` telling whether the call stored the
+            message or found it already there
+        """
+        self.ensure_one()
+        if not isinstance(payload, dict):
+            raise ValidationError(self.env._("The message must be a JSON object."))
+        external_id = str(payload.get('message_id') or '').strip()
+        body = str(payload.get('body') or '').strip()
+        if not external_id:
+            raise ValidationError(self.env._("message_id is required."))
+        if not body:
+            raise ValidationError(self.env._("body is required."))
+        Sync = self.env['vn.care.message.sync']
+        existing = Sync.search([('enquiry_id', '=', self.id), ('external_id', '=', external_id)], limit=1)
+        if existing:
+            return {'reference': self.name, 'status': self.state, 'message_id': external_id, 'created': False}
+        values = {}
+        if payload.get('sent_at'):
+            values['date'] = self._api_parse_datetime(payload['sent_at'])
+        message = self.with_context(vn_care_from_website=True).message_post(
+            body=body, message_type='comment', subtype_xmlid='mail.mt_comment',
+            author_id=self.partner_id.id, **values)
+        Sync.create({
+            'enquiry_id': self.id,
+            'message_id': message.id,
+            'direction': 'in',
+            'external_id': external_id,
+            'state': 'synced',
+        })
+        self._register_customer_reply()
+        return {'reference': self.name, 'status': self.state, 'message_id': external_id, 'created': True}
+
     def _api_format(self):
         self.ensure_one()
         return {
@@ -574,7 +642,8 @@ class VnCareEnquiry(models.Model):
             return
         for enquiry in pending:
             enquiry._push_to_website(url, secret)
-        if len(pending) == SYNC_BATCH_SIZE:
+        sent_messages = self.env['vn.care.message.sync']._push_pending(url, secret, SYNC_BATCH_SIZE)
+        if SYNC_BATCH_SIZE in (len(pending), sent_messages):
             self._trigger_sync_cron()
 
     def _push_to_website(self, url, secret):
@@ -598,8 +667,10 @@ class VnCareEnquiry(models.Model):
     @api.model
     def _cron_retry_failed_sync(self):
         failed = self.search([('sync_state', '=', 'failed')])
-        if failed:
-            failed.with_context(vn_care_from_website=True).write({'sync_state': 'pending'})
+        failed_messages = self.env['vn.care.message.sync'].search([('state', '=', 'failed')])
+        failed.with_context(vn_care_from_website=True).write({'sync_state': 'pending'})
+        failed_messages.write({'state': 'pending'})
+        if failed or failed_messages:
             self._trigger_sync_cron()
 
     @api.model

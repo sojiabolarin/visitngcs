@@ -216,6 +216,17 @@
                                         class="btn-secondary" invisible="sync_state == 'synced' or not submission_id"/>
                                 </group>
                             </group>
+                            <field name="message_sync_ids" readonly="1" invisible="not message_sync_ids">
+                                <list string="Messages Exchanged with the Website" create="0" delete="0"
+                                    decoration-danger="state == 'failed'">
+                                    <field name="create_date" string="Date"/>
+                                    <field name="direction"/>
+                                    <field name="state" widget="badge" decoration-success="state == 'synced'"
+                                        decoration-danger="state == 'failed'"/>
+                                    <field name="sync_date" optional="show"/>
+                                    <field name="error" optional="show"/>
+                                </list>
+                            </field>
                         </page>
                     </notebook>
                 </sheet>

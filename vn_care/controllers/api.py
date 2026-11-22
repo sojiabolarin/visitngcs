@@ -75,6 +75,28 @@ class VnCareApi(http.Controller):
         return request.make_json_response(enquiry._api_format())
 
     @http.route(
+        '/vn_care/api/v1/enquiries/<string:submission_id>/messages', type='http', auth='bearer',
+        bearer_scope='vn_care', methods=['POST'], csrf=False, readonly=False)
+    def post_customer_message(self, submission_id):
+        """Add what the customer wrote in their website account to the enquiry.
+        A message sent twice is stored once."""
+        self._check_api_user()
+        try:
+            data = request.get_json_data()
+        except ValueError:
+            return self._error("The body must be valid JSON.", 400)
+        # sudo - vn.care.enquiry: see create_enquiries
+        enquiry = request.env['vn.care.enquiry'].sudo().search(
+            [('submission_id', '=', submission_id)], limit=1)
+        if not enquiry:
+            return self._error("No enquiry for this submission.", 404)
+        try:
+            result = enquiry._api_post_customer_message(data)
+        except (ValidationError, UserError) as error:
+            return self._error(str(error), 422)
+        return request.make_json_response(result, status=201 if result['created'] else 200)
+
+    @http.route(
         '/vn_care/api/v1/categories', type='http', auth='bearer', bearer_scope='vn_care',
         methods=['GET'], readonly=True)
     def get_categories(self):

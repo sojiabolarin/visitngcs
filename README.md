@@ -24,7 +24,7 @@ Built and tested on Odoo 20.0 Community with PostgreSQL 16. It depends on the
 | Reports | *Customer Care > Reports*: by category, booking conversion, outstanding requests, response and resolution times, agent performance. All export to Excel. |
 | Access levels | Customer Care Agent, Customer Care Manager, Super Admin / Management (see below). |
 | Staff management | *Team > Members* and *Add Member*: Management adds people, changes their level and deactivates them, without holding Odoo administrator rights. |
-| Website synchronisation | Authenticated API in, signed webhook out, nightly reconciliation. |
+| Website synchronisation | Authenticated API in, signed webhook out, nightly reconciliation. Replies travel both ways, so the customer reads the conversation in their website account. |
 
 The module records whether an enquiry became a booking and the partner's
 booking reference. It takes no bookings and no payments: those stay with the
@@ -147,7 +147,43 @@ X-VN-Care-Signature: <hex HMAC-SHA256 of the raw body, keyed with the shared sec
 Answer with any `2xx`. Anything else is retried every hour and shows under the
 filter *Website Sync Failed*.
 
-### 4. Nightly reconciliation
+### 4. Show the conversation in the customer's account
+
+Every message of the conversation with the customer is sent to the same
+webhook URL, so the website can show the whole thread in the customer's
+account: the automatic receipt, each reply of an agent, and each answer the
+customer sends by email. Internal notes are never sent.
+
+```
+POST <webhook url>
+X-VN-Care-Event: enquiry.message
+X-VN-Care-Signature: <same signature as above>
+
+{"submission_id":"web-9001","reference":"VN-ENQ-000027",
+ "message":{"id":412,"author_type":"agent","author_name":"Agent Name","subject":null,
+            "body_html":"<p>Hello Ada, two rooms are available.</p>",
+            "body_text":"Hello Ada, two rooms are available.",
+            "attachments":["quote.pdf"],"sent_at":"2026-11-22T15:10:00Z"}}
+```
+
+`author_type` is `agent`, `customer` or `system`. `message.id` is unique:
+store it and ignore a message received twice. Attachments are listed by name
+only; the files themselves travel by email.
+
+When the customer answers in their account, send the answer to Odoo:
+
+`POST /vn_care/api/v1/enquiries/<submission_id>/messages`
+
+```json
+{"message_id": "wm-1", "body": "Yes please, book them.", "sent_at": "2026-11-22T16:00:00+01:00"}
+```
+
+`message_id` is the website's own identifier; a message sent twice is stored
+once. The answer appears on the enquiry as written by the customer, the agent
+is notified, and the enquiry goes back to In Progress. It is not sent back to
+the webhook.
+
+### 5. Nightly reconciliation
 
 Set *Reconciliation URL* to a website endpoint that returns the submissions
 received since a date:
@@ -163,6 +199,7 @@ Every night Odoo asks for the last two days and creates whatever is missing.
 
 ## Website side, still to do
 
-The website must add three things for the integration to be complete: the call
-in step 2 on every form submission (with a retry queue), the webhook receiver
-in step 3, and the listing endpoint in step 4.
+The website must add four things for the integration to be complete: the call
+in step 2 on every form submission (with a retry queue), one webhook receiver
+for the events of steps 3 and 4, the call in step 4 when a customer answers in
+their account, and the listing endpoint in step 5.
